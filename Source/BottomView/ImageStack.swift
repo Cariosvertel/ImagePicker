@@ -18,7 +18,24 @@ public class ImageStack {
   }
 
   public func dropAsset(asset: PHAsset) {
-    assets = assets.filter() {$0 != asset}
+    assets = assets.filter() {
+      
+      if $0 is LocalDirAsset{
+        let localFirst = $0 as! LocalDirAsset
+        if !(asset is LocalDirAsset){
+          return false
+        }else {
+          let local = asset as! LocalDirAsset
+          return localFirst.imageIdentifier == local.imageIdentifier
+        }
+      }else{
+        if asset is LocalDirAsset{
+          return false
+        }else{
+          return $0 == asset
+        }
+      }
+    }
     NSNotificationCenter.defaultCenter().postNotificationName(Notifications.imageDidDrop, object: self, userInfo: [imageKey: asset])
   }
 
