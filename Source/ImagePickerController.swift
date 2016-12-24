@@ -333,11 +333,11 @@ extension ImagePickerController: BottomContainerViewDelegate {
 
   func doneButtonDidPress() {
     var images: [UIImage]
-    if let preferredImageSize = preferredImageSize {
-      images = AssetManager.resolveAssets(stack.assets, size: preferredImageSize)
-    } else {
+//    if let preferredImageSize = preferredImageSize {
+//      images = AssetManager.resolveAssets(stack.assets, size: preferredImageSize)
+//    } else {
       images = AssetManager.resolveAssets(stack.assets)
-    }
+//    }
 
     delegate?.doneButtonDidPress(self, images: images)
   }
@@ -365,13 +365,19 @@ extension ImagePickerController: CameraViewDelegate {
     topView.flashButton.hidden = hidden
   }
 
-  func imageToLibrary() {
+  func imageToLibrary(image: UIImage) {
     guard let collectionSize = galleryView.collectionSize else { return }
 
-    galleryView.fetchPhotos() {
-      guard let asset = self.galleryView.assets.first else { return }
-      self.stack.pushAsset(asset)
-    }
+//    galleryView.fetchPhotos() {
+//      guard let asset = self.galleryView.assets.first else { return }
+//      self.stack.pushAsset(asset)
+//    }
+    let newAsset = LocalDirAsset()
+    newAsset.imagePath = image
+    
+    galleryView.assets.insert(newAsset, atIndex: 0)
+    galleryView.collectionView.reloadData()
+    self.stack.pushAsset(newAsset)
     galleryView.shouldTransform = true
     bottomContainer.pickerButton.enabled = true
 

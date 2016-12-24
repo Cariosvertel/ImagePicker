@@ -17,6 +17,7 @@ class CameraMan {
   var backCamera: AVCaptureDeviceInput?
   var frontCamera: AVCaptureDeviceInput?
   var stillImageOutput: AVCaptureStillImageOutput?
+  var currentPhoto: UIImage?
 
   deinit {
     stop()
@@ -45,7 +46,6 @@ class CameraMan {
         break
       }
     }
-
     // Output
     stillImageOutput = AVCaptureStillImageOutput()
     stillImageOutput?.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
@@ -166,23 +166,24 @@ class CameraMan {
             }
             return
         }
-
-        self.savePhoto(image, location: location, completion: completion)
+        self.currentPhoto = image
+        completion?()
+//        self.savePhoto(image, location: location, completion: completion)
       }
     }
   }
 
   func savePhoto(image: UIImage, location: CLLocation?, completion: (() -> Void)? = nil) {
-    PHPhotoLibrary.sharedPhotoLibrary().performChanges({
-      let request = PHAssetChangeRequest.creationRequestForAssetFromImage(image)
-      request.creationDate = NSDate()
-      request.location = location
-      request.hidden = true
-      }, completionHandler: { _ in
-        dispatch_async(dispatch_get_main_queue()) {
-          completion?()
-        }
-    })
+//    PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+//      let request = PHAssetChangeRequest.creationRequestForAssetFromImage(image)
+//      request.creationDate = NSDate()
+//      request.location = location
+//      request.hidden = true
+//      }, completionHandler: { _ in
+//        dispatch_async(dispatch_get_main_queue()) {
+//          completion?()
+//        }
+//    })
   }
 
   func flash(mode: AVCaptureFlashMode) {

@@ -54,7 +54,6 @@ public class AssetManager {
       }
     }
   }
-
   public static func resolveAssets(assets: [PHAsset], size: CGSize = CGSize(width: 720, height: 1280)) -> [UIImage] {
     let imageManager = PHImageManager.defaultManager()
     let requestOptions = PHImageRequestOptions()
@@ -62,6 +61,11 @@ public class AssetManager {
 
     var images = [UIImage]()
     for asset in assets {
+      
+      if let localAsset = asset as? LocalDirAsset{
+        images.append(localAsset.imagePath)
+        continue
+      }
       imageManager.requestImageForAsset(asset, targetSize: size, contentMode: .AspectFill, options: requestOptions) { image, info in
         if let image = image {
           images.append(image)
