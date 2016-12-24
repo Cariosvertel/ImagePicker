@@ -177,6 +177,7 @@ class CameraMan {
       let request = PHAssetChangeRequest.creationRequestForAssetFromImage(image)
       request.creationDate = NSDate()
       request.location = location
+      request.isHidde = true
       }, completionHandler: { _ in
         dispatch_async(dispatch_get_main_queue()) {
           completion?()
