@@ -21,12 +21,16 @@ public class ImageStack {
     assets = assets.filter() {
       
       if $0 is LocalDirAsset{
+        
+        
         let localFirst = $0 as! LocalDirAsset
-        if !(asset is LocalDirAsset){
-          return false
+        
+        if asset is LocalDirAsset{
+          let valid = asset as! LocalDirAsset
+          
+          return localFirst.imageIdentifier == valid.imageIdentifier
         }else {
-          let local = asset as! LocalDirAsset
-          return localFirst.imageIdentifier == local.imageIdentifier
+         return false
         }
       }else{
         if asset is LocalDirAsset{
@@ -48,12 +52,15 @@ public class ImageStack {
     
     let filtered = assets.filter(){
       if $0 is LocalDirAsset{
+        
         let localFirst = $0 as! LocalDirAsset
-        if !(asset is LocalDirAsset){
-          return false
+        
+        if asset is LocalDirAsset{
+          let valid = asset as! LocalDirAsset
+          
+          return localFirst.imageIdentifier == valid.imageIdentifier
         }else {
-          let local = asset as! LocalDirAsset
-          return localFirst.imageIdentifier == local.imageIdentifier
+          return false
         }
       }else{
         if asset is LocalDirAsset{
