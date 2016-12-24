@@ -373,6 +373,7 @@ extension ImagePickerController: CameraViewDelegate {
 //      self.stack.pushAsset(asset)
 //    }
     let newAsset = LocalDirAsset()
+    newAsset.imageIdentifier = NSProcessInfo.processInfo().globallyUniqueString
     newAsset.imagePath = image
     
     galleryView.assets.insert(newAsset, atIndex: 0)

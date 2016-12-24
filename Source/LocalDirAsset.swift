@@ -9,5 +9,6 @@ import Photos
 class LocalDirAsset: PHAsset {
 
   var imagePath:UIImage!
+  var imageIdentifier: String!
   
 }
