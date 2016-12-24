@@ -17,8 +17,8 @@ extension ImageGalleryView: UICollectionViewDataSource {
 
     let asset = assets[indexPath.row]
 
-    if let validAsset = asset as? LocalDirAsset{
-      
+    if asset is LocalDirAsset{
+      let validAsset = asset as! LocalDirAsset
       cell.configureCell(validAsset.imagePath)
       
       if indexPath.row == 0 && self.shouldTransform {
