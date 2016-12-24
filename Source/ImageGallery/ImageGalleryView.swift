@@ -194,7 +194,7 @@ extension ImageGalleryView: UICollectionViewDelegate {
 
     let asset = assets[indexPath.row]
 
-    if let validImage = asset as? LocalDirAsset{
+    if asset is LocalDirAsset{
       
       if cell.selectedImageView.image != nil {
         UIView.animateWithDuration(0.2, animations: {
