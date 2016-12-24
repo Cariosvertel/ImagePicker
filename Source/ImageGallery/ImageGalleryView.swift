@@ -194,14 +194,13 @@ extension ImageGalleryView: UICollectionViewDelegate {
 
     let asset = assets[indexPath.row]
 
-    AssetManager.resolveAsset(asset, size: CGSize(width: 100, height: 100)) { image in
-      guard let _ = image else { return }
-
+    if let validImage = asset as? LocalDirAsset{
+      
       if cell.selectedImageView.image != nil {
         UIView.animateWithDuration(0.2, animations: {
           cell.selectedImageView.transform = CGAffineTransformMakeScale(0.1, 0.1)
-          }) { _ in
-            cell.selectedImageView.image = nil
+        }) { _ in
+          cell.selectedImageView.image = nil
         }
         self.selectedStack.dropAsset(asset)
       } else if self.imageLimit == 0 || self.imageLimit > self.selectedStack.assets.count {
@@ -212,7 +211,32 @@ extension ImageGalleryView: UICollectionViewDelegate {
         }
         self.selectedStack.pushAsset(asset)
       }
+     
+    }else{
+      
+      AssetManager.resolveAsset(asset, size: CGSize(width: 100, height: 100)) { image in
+        guard let _ = image else { return }
+        
+        if cell.selectedImageView.image != nil {
+          UIView.animateWithDuration(0.2, animations: {
+            cell.selectedImageView.transform = CGAffineTransformMakeScale(0.1, 0.1)
+          }) { _ in
+            cell.selectedImageView.image = nil
+          }
+          self.selectedStack.dropAsset(asset)
+        } else if self.imageLimit == 0 || self.imageLimit > self.selectedStack.assets.count {
+          cell.selectedImageView.image = AssetManager.getImage("selectedImageGallery")
+          cell.selectedImageView.transform = CGAffineTransformMakeScale(0, 0)
+          UIView.animateWithDuration(0.2) { _ in
+            cell.selectedImageView.transform = CGAffineTransformIdentity
+          }
+          self.selectedStack.pushAsset(asset)
+        }
+      }
     }
+    
+    
+    
   }
 
   public func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell,
