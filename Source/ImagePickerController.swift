@@ -197,7 +197,7 @@ public class ImagePickerController: UIViewController {
     _ = try? AVAudioSession.sharedInstance().setActive(false)
     NSNotificationCenter.defaultCenter().removeObserver(self)
   }
-
+  
   func subscribe() {
     NSNotificationCenter.defaultCenter().addObserver(self,
       selector: #selector(adjustButtonTitle(_:)),

@@ -17,6 +17,7 @@ public class AssetManager {
 
   public static func fetch(completion: (assets: [PHAsset]) -> Void) {
     let fetchOptions = PHFetchOptions()
+    fetchOptions.includeHiddenAssets = true
     let authorizationStatus = PHPhotoLibrary.authorizationStatus()
     var fetchResult: PHFetchResult?
 
