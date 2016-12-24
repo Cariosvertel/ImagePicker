@@ -31,13 +31,13 @@ extension ImageGalleryView: UICollectionViewDataSource {
         self.shouldTransform = false
       }
       
-//      if self.selectedStack.containsAsset(asset) {
+      if self.selectedStack.containsAsset(asset) {
         cell.selectedImageView.image = AssetManager.getImage("selectedImageGallery")
         cell.selectedImageView.alpha = 1
         cell.selectedImageView.transform = CGAffineTransformIdentity
-//      } else {
-//        cell.selectedImageView.image = nil
-//      }
+      } else {
+        cell.selectedImageView.image = nil
+      }
     }else{
       AssetManager.resolveAsset(asset, size: CGSize(width: 160, height: 240)) { image in
         if let image = image {
