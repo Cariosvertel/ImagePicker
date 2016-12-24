@@ -376,8 +376,8 @@ extension ImagePickerController: CameraViewDelegate {
     newAsset.imagePath = image
     
     galleryView.assets.insert(newAsset, atIndex: 0)
-    galleryView.collectionView.reloadData()
     self.stack.pushAsset(newAsset)
+    galleryView.collectionView.reloadData()
     galleryView.shouldTransform = true
     bottomContainer.pickerButton.enabled = true
 
