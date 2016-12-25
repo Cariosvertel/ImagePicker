@@ -22,21 +22,20 @@ public class ImageStack {
       
       if $0 is LocalDirAsset{
         
-        
         let localFirst = $0 as! LocalDirAsset
         
         if asset is LocalDirAsset{
           let valid = asset as! LocalDirAsset
           
-          return localFirst.imageIdentifier == valid.imageIdentifier
+          return localFirst.imageIdentifier != valid.imageIdentifier
         }else {
-         return false
+          return true
         }
       }else{
         if asset is LocalDirAsset{
-          return false
+          return true
         }else{
-          return $0 == asset
+          return $0 != asset
         }
       }
     }
