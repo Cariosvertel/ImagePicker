@@ -139,11 +139,21 @@ extension ImageStackView {
     let photos = Array(assets.suffix(4))
 
     for (index, view) in views.enumerate() {
+      
+      
       if index <= photos.count - 1 {
-        AssetManager.resolveAsset(photos[index], size: CGSize(width: Dimensions.imageSize, height: Dimensions.imageSize)) { image in
-          view.image = image
+        
+        let currentPhoto = photos[index]
+        if currentPhoto is LocalDirAsset{
+          let local = currentPhoto as! LocalDirAsset
+          view.image = local.imagePath
+        }else{
+          AssetManager.resolveAsset(photos[index], size: CGSize(width: Dimensions.imageSize, height: Dimensions.imageSize)) { image in
+            view.image = image
+          }
+          view.alpha = 1
+          
         }
-        view.alpha = 1
       } else {
         view.image = nil
         view.alpha = 0
@@ -154,6 +164,9 @@ extension ImageStackView {
           self.activityView.frame.origin = CGPoint(x: view.center.x + 3, y: view.center.x + 3)
         }
       }
+      
+      
+      
     }
   }
 
