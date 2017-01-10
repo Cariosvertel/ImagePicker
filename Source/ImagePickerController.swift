@@ -172,7 +172,8 @@ public class ImagePickerController: UIViewController {
     }
 
     let cancelAction = UIAlertAction(title: Configuration.cancelButtonTitle, style: .Cancel) { _ in
-      self.dismissViewControllerAnimated(true, completion: nil)
+      delegate?.cancelButtonDidPress(self)
+      //self.dismissViewControllerAnimated(true, completion: nil)
     }
 
     alertController.addAction(alertAction)
@@ -343,7 +344,7 @@ extension ImagePickerController: BottomContainerViewDelegate {
   }
 
   func cancelButtonDidPress() {
-    dismissViewControllerAnimated(true, completion: nil)
+    // dismissViewControllerAnimated(true, completion: nil)
     delegate?.cancelButtonDidPress(self)
   }
 
