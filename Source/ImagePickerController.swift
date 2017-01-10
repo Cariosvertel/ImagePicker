@@ -171,8 +171,10 @@ public class ImagePickerController: UIViewController {
       }
     }
 
-    let cancelAction = UIAlertAction(title: Configuration.cancelButtonTitle, style: .Cancel) { _ in
-      delegate?.cancelButtonDidPress(self)
+    let cancelAction = UIAlertAction(title: Configuration.cancelButtonTitle, style: .Cancel) { 
+      [unowned weakSelf = self] _ in
+      
+      weakSelf.delegate?.cancelButtonDidPress(self)
       //self.dismissViewControllerAnimated(true, completion: nil)
     }
 
