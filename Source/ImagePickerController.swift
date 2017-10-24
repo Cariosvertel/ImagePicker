@@ -11,6 +11,8 @@ import Photos
 
 open class ImagePickerController: UIViewController {
 
+  let configuration: Configuration
+
   struct GestureConstants {
     static let maximumHeight: CGFloat = 200
     static let minimumHeight: CGFloat = 125
@@ -18,7 +20,7 @@ open class ImagePickerController: UIViewController {
   }
 
   open lazy var galleryView: ImageGalleryView = { [unowned self] in
-    let galleryView = ImageGalleryView()
+    let galleryView = ImageGalleryView(configuration: self.configuration)
     galleryView.delegate = self
     galleryView.selectedStack = self.stack
     galleryView.collectionView.layer.anchorPoint = CGPoint(x: 0, y: 0)
@@ -28,15 +30,15 @@ open class ImagePickerController: UIViewController {
     }()
 
   open lazy var bottomContainer: BottomContainerView = { [unowned self] in
-    let view = BottomContainerView()
-    view.backgroundColor = Configuration.mainColor
+    let view = BottomContainerView(configuration: self.configuration)
+    view.backgroundColor = self.configuration.bottomContainerColor
     view.delegate = self
 
     return view
     }()
 
-  lazy var topView: TopView = { [unowned self] in
-    let view = TopView()
+  open lazy var topView: TopView = { [unowned self] in
+    let view = TopView(configuration: self.configuration)
     view.backgroundColor = UIColor.clear
     view.delegate = self
 
@@ -44,7 +46,7 @@ open class ImagePickerController: UIViewController {
     }()
 
   lazy var cameraController: CameraView = { [unowned self] in
-    let controller = CameraView()
+    let controller = CameraView(configuration: self.configuration)
     controller.delegate = self
     controller.startOnFrontCamera = self.startOnFrontCamera
 
@@ -87,6 +89,17 @@ open class ImagePickerController: UIViewController {
     }
   }
 
+  // MARK: - Initialization
+
+  public required init(configuration: Configuration = Configuration()) {
+    self.configuration = configuration
+    super.init(nibName: nil, bundle: nil)
+  }
+
+  public required init?(coder aDecoder: NSCoder) {
+    fatalError()
+  }
+
   // MARK: - View lifecycle
 
   open override func viewDidLoad() {
@@ -101,7 +114,7 @@ open class ImagePickerController: UIViewController {
     view.sendSubview(toBack: volumeView)
 
     view.backgroundColor = UIColor.white
-    view.backgroundColor = Configuration.mainColor
+    view.backgroundColor = configuration.mainColor
 
     cameraController.view.addGestureRecognizer(panGestureRecognizer)
 
@@ -112,7 +125,9 @@ open class ImagePickerController: UIViewController {
   open override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
 
-    _ = try? AVAudioSession.sharedInstance().setActive(true)
+    if configuration.managesAudioSession {
+      _ = try? AVAudioSession.sharedInstance().setActive(true)
+    }
 
     statusBarHidden = UIApplication.shared.isStatusBarHidden
     UIApplication.shared.setStatusBarHidden(true, with: .fade)
@@ -136,6 +151,8 @@ open class ImagePickerController: UIViewController {
 
     initialFrame = galleryView.frame
     initialContentOffset = galleryView.collectionView.contentOffset
+
+    applyOrientationTransforms()
   }
 
   open override func viewWillDisappear(_ animated: Bool) {
@@ -165,15 +182,15 @@ open class ImagePickerController: UIViewController {
   }
 
   func presentAskPermissionAlert() {
-    let alertController = UIAlertController(title: Configuration.requestPermissionTitle, message: Configuration.requestPermissionMessage, preferredStyle: .alert)
+    let alertController = UIAlertController(title: configuration.requestPermissionTitle, message: configuration.requestPermissionMessage, preferredStyle: .alert)
 
-    let alertAction = UIAlertAction(title: Configuration.OKButtonTitle, style: .default) { _ in
+    let alertAction = UIAlertAction(title: configuration.OKButtonTitle, style: .default) { _ in
       if let settingsURL = URL(string: UIApplicationOpenSettingsURLString) {
         UIApplication.shared.openURL(settingsURL)
       }
     }
 
-    let cancelAction = UIAlertAction(title: Configuration.cancelButtonTitle, style: .cancel) { _ in
+    let cancelAction = UIAlertAction(title: configuration.cancelButtonTitle, style: .cancel) { _ in
       self.dismiss(animated: true, completion: nil)
     }
 
@@ -189,14 +206,16 @@ open class ImagePickerController: UIViewController {
 
   func permissionGranted() {
     galleryView.fetchPhotos()
-    galleryView.canFetchImages = false
     enableGestures(true)
   }
 
   // MARK: - Notifications
 
   deinit {
-    _ = try? AVAudioSession.sharedInstance().setActive(false)
+    if configuration.managesAudioSession {
+      _ = try? AVAudioSession.sharedInstance().setActive(false)
+    }
+
     NotificationCenter.default.removeObserver(self)
   }
 
@@ -227,13 +246,13 @@ open class ImagePickerController: UIViewController {
       object: nil)
   }
 
-  func didReloadAssets(_ notification: Notification) {
+  @objc func didReloadAssets(_ notification: Notification) {
     adjustButtonTitle(notification)
     galleryView.collectionView.reloadData()
     galleryView.collectionView.setContentOffset(CGPoint.zero, animated: false)
   }
 
-  func volumeChanged(_ notification: Notification) {
+  @objc func volumeChanged(_ notification: Notification) {
     guard let slider = volumeView.subviews.filter({ $0 is UISlider }).first as? UISlider,
       let userInfo = (notification as NSNotification).userInfo,
       let changeReason = userInfo["AVSystemController_AudioVolumeChangeReasonNotificationParameter"] as? String, changeReason == "ExplicitVolumeChange" else { return }
@@ -242,11 +261,11 @@ open class ImagePickerController: UIViewController {
     takePicture()
   }
 
-  func adjustButtonTitle(_ notification: Notification) {
+  @objc func adjustButtonTitle(_ notification: Notification) {
     guard let sender = notification.object as? ImageStack else { return }
 
     let title = !sender.assets.isEmpty ?
-      Configuration.doneButtonTitle : Configuration.cancelButtonTitle
+      configuration.doneButtonTitle : configuration.cancelButtonTitle
     bottomContainer.doneButton.setTitle(title, for: UIControlState())
   }
 
@@ -300,7 +319,7 @@ open class ImagePickerController: UIViewController {
     bottomContainer.pickerButton.isEnabled = enabled
     bottomContainer.tapGestureRecognizer.isEnabled = enabled
     topView.flashButton.isEnabled = enabled
-    topView.rotateCamera.isEnabled = Configuration.canRotateCamera
+    topView.rotateCamera.isEnabled = configuration.canRotateCamera
   }
 
   fileprivate func isBelowImageLimit() -> Bool {
@@ -312,11 +331,11 @@ open class ImagePickerController: UIViewController {
     isTakingPicture = true
     bottomContainer.pickerButton.isEnabled = false
     bottomContainer.stackView.startLoader()
-    let action: (Void) -> Void = { [unowned self] in
+    let action: () -> Void = { [unowned self] in
       self.cameraController.takePicture { self.isTakingPicture = false }
     }
 
-    if Configuration.collapseCollectionViewWhileShot {
+    if configuration.collapseCollectionViewWhileShot {
       collapseGalleryView(action)
     } else {
       action()
@@ -344,7 +363,6 @@ extension ImagePickerController: BottomContainerViewDelegate {
   }
 
   func cancelButtonDidPress() {
-    dismiss(animated: true, completion: nil)
     delegate?.cancelButtonDidPress(self)
   }
 
@@ -363,16 +381,22 @@ extension ImagePickerController: BottomContainerViewDelegate {
 extension ImagePickerController: CameraViewDelegate {
 
   func setFlashButtonHidden(_ hidden: Bool) {
-    topView.flashButton.isHidden = hidden
+    if configuration.flashButtonAlwaysHidden {
+      topView.flashButton.isHidden = hidden
+    }
   }
 
   func imageToLibrary() {
     guard let collectionSize = galleryView.collectionSize else { return }
 
-    galleryView.fetchPhotos() {
+    galleryView.fetchPhotos {
       guard let asset = self.galleryView.assets.first else { return }
+      if self.configuration.allowMultiplePhotoSelection == false {
+        self.stack.assets.removeAll()
+      }
       self.stack.pushAsset(asset)
     }
+
     galleryView.shouldTransform = true
     bottomContainer.pickerButton.isEnabled = true
 
@@ -395,12 +419,16 @@ extension ImagePickerController: CameraViewDelegate {
     return .portrait
   }
 
-  public func handleRotation(_ note: Notification) {
+  @objc public func handleRotation(_ note: Notification) {
+    applyOrientationTransforms()
+  }
+
+  func applyOrientationTransforms() {
     let rotate = Helper.rotationTransform()
 
     UIView.animate(withDuration: 0.25, animations: {
       [self.topView.rotateCamera, self.bottomContainer.pickerButton,
-        self.bottomContainer.stackView, self.bottomContainer.doneButton].forEach {
+       self.bottomContainer.stackView, self.bottomContainer.doneButton].forEach {
         $0.transform = rotate
       }
 
@@ -444,7 +472,7 @@ extension ImagePickerController: ImageGalleryPanGestureDelegate {
     if let contentOffset = initialContentOffset { numberOfCells = Int(contentOffset.x / collectionSize.width) }
   }
 
-  func panGestureRecognizerHandler(_ gesture: UIPanGestureRecognizer) {
+  @objc func panGestureRecognizerHandler(_ gesture: UIPanGestureRecognizer) {
     let translation = gesture.translation(in: view)
     let velocity = gesture.velocity(in: view)
 
