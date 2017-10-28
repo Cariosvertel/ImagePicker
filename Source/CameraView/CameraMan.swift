@@ -18,6 +18,7 @@ class CameraMan {
   var frontCamera: AVCaptureDeviceInput?
   var stillImageOutput: AVCaptureStillImageOutput?
   var startOnFrontCamera: Bool = false
+  var currentImage:UIImage?
 
   deinit {
     stop()
@@ -165,8 +166,9 @@ class CameraMan {
             }
             return
         }
-
-        self.savePhoto(image, location: location, completion: completion)
+        completion?()
+        self.currentImage = image
+//        self.savePhoto(image, location: location, completion: completion)
       }
     }
   }

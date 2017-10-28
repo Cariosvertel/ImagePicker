@@ -17,6 +17,31 @@ extension ImageGalleryView: UICollectionViewDataSource {
 
     let asset = assets[(indexPath as NSIndexPath).row]
 
+    if asset is LocalDirAsset{
+      let validAsset = asset as! LocalDirAsset
+      let image = validAsset.imagePath!
+      cell.configureCell(image)
+      
+      if (indexPath as NSIndexPath).row == 0 && self.shouldTransform {
+        cell.transform = CGAffineTransform(scaleX: 0, y: 0)
+        
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: UIViewAnimationOptions(), animations: {
+          cell.transform = CGAffineTransform.identity
+        }) { _ in }
+        
+        self.shouldTransform = false
+      }
+      
+      if self.selectedStack.containsAsset(asset) {
+        cell.selectedImageView.image = AssetManager.getImage("selectedImageGallery")
+        cell.selectedImageView.alpha = 1
+        cell.selectedImageView.transform = CGAffineTransform.identity
+      } else {
+        cell.selectedImageView.image = nil
+      }
+      cell.duration = asset.duration
+      return cell
+    }
     AssetManager.resolveAsset(asset, size: CGSize(width: 160, height: 240)) { image in
       if let image = image {
         cell.configureCell(image)

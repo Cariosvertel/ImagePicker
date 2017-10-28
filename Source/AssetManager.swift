@@ -58,6 +58,11 @@ open class AssetManager {
 
     var images = [UIImage]()
     for asset in assets {
+      
+      if let localAsset = asset as? LocalDirAsset{
+        images.append(localAsset.imagePath)
+        continue
+      }
       imageManager.requestImage(for: asset, targetSize: size, contentMode: .aspectFill, options: requestOptions) { image, _ in
         if let image = image {
           images.append(image)

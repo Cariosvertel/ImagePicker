@@ -28,6 +28,26 @@ open class ImageStack {
   }
 
   open func containsAsset(_ asset: PHAsset) -> Bool {
-    return assets.contains(asset)
+    let filtered = assets.filter(){
+      if $0 is LocalDirAsset{
+        
+        let localFirst = $0 as! LocalDirAsset
+        
+        if asset is LocalDirAsset{
+          let valid = asset as! LocalDirAsset
+          
+          return localFirst.imageIdentifier == valid.imageIdentifier
+        }else {
+          return false
+        }
+      }else{
+        if asset is LocalDirAsset{
+          return false
+        }else{
+          return $0 == asset
+        }
+      }
+    }
+    return filtered.count > 0
   }
 }

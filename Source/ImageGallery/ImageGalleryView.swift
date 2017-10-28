@@ -230,7 +230,24 @@ extension ImageGalleryView: UICollectionViewDelegate {
     }
 
     let asset = assets[(indexPath as NSIndexPath).row]
-
+    if asset is LocalDirAsset{
+      if cell.selectedImageView.image != nil {
+        UIView.animate(withDuration: 0.2, animations: {
+          cell.selectedImageView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        }, completion: { _ in
+          cell.selectedImageView.image = nil
+        })
+        self.selectedStack.dropAsset(asset)
+      } else if self.imageLimit == 0 || self.imageLimit > self.selectedStack.assets.count {
+        cell.selectedImageView.image = AssetManager.getImage("selectedImageGallery")
+        cell.selectedImageView.transform = CGAffineTransform(scaleX: 0, y: 0)
+        UIView.animate(withDuration: 0.2, animations: {
+          cell.selectedImageView.transform = CGAffineTransform.identity
+        })
+        self.selectedStack.pushAsset(asset)
+      }
+      return
+    }
     AssetManager.resolveAsset(asset, size: CGSize(width: 100, height: 100)) { image in
       guard image != nil else { return }
 
