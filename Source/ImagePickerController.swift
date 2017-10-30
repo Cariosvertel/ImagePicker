@@ -9,6 +9,10 @@ import Photos
   func cancelButtonDidPress(_ imagePicker: ImagePickerController)
 }
 
+@objc public protocol ImagePickerDataSource: class {
+  
+  func isValidSelectedImage(_ image:UIImage) -> Bool
+}
 open class ImagePickerController: UIViewController {
 
   let configuration: Configuration
@@ -70,6 +74,7 @@ open class ImagePickerController: UIViewController {
   var volume = AVAudioSession.sharedInstance().outputVolume
 
   open weak var delegate: ImagePickerDelegate?
+  open weak var datasource: ImagePickerDataSource?
   open var stack = ImageStack()
   open var imageLimit = 0
   open var preferredImageSize: CGSize?
@@ -363,6 +368,10 @@ extension ImagePickerController: BottomContainerViewDelegate {
 //    } else {
       images = AssetManager.resolveAssets(stack.assets)
 //    }
+    if images.count == 1, let result = self.datasource?.isValidSelectedImage(images[0]), result == false {
+      self.galleryView.collectionView(self.galleryView.collectionView, didSelectItemAt: IndexPath(row: 0, section: 0))
+      return
+    }
     delegate?.doneButtonDidPress(self, images: images)
   }
 
