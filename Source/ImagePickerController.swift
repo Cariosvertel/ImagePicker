@@ -91,6 +91,10 @@ open class ImagePickerController: UIViewController {
 
   // MARK: - Initialization
 
+  public required init() {
+    self.configuration = Configuration()
+    super.init(nibName: nil, bundle: nil)
+  }
   public required init(configuration: Configuration = Configuration()) {
     self.configuration = configuration
     super.init(nibName: nil, bundle: nil)

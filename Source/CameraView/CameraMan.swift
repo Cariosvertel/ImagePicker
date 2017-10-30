@@ -166,8 +166,10 @@ class CameraMan {
             }
             return
         }
-        completion?()
         self.currentImage = image
+        DispatchQueue.main.async {
+          completion?()
+        }
 //        self.savePhoto(image, location: location, completion: completion)
       }
     }
