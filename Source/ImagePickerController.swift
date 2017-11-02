@@ -7,8 +7,9 @@ import Photos
   func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage])
   func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage])
   func cancelButtonDidPress(_ imagePicker: ImagePickerController)
-  func isValidSelectedImage(_ image:UIImage) -> Bool
-
+  func isValidImage(_ image:UIImage) -> Bool
+  func rejectedImages(_ rejected:Int, total:Int)
+  func shouldResetView() -> Bool
 }
 open class ImagePickerController: UIViewController {
 
@@ -359,19 +360,24 @@ extension ImagePickerController: BottomContainerViewDelegate {
 
   func doneButtonDidPress() {
     var images: [UIImage]
-//    if let preferredImageSize = preferredImageSize {
-//      images = AssetManager.resolveAssets(stack.assets, size: preferredImageSize)
-//    } else {
-      images = AssetManager.resolveAssets(stack.assets)
-//    }
-    if images.count == 1, let result = self.delegate?.isValidSelectedImage(images[0]), result == false {
+    images = AssetManager.resolveAssets(stack.assets)
+    
+    var validImages = [UIImage]()
+    var counter = 0
+    for image in images{
+      if let accepted = self.delegate?.isValidImage(image), accepted == true{
+        validImages.append(image)
+      }else{
+        counter += 1
+      }
+    }
+    self.delegate?.rejectedImages(counter,total:images.count)
+    if let enabled = self.delegate?.shouldResetView(), enabled == true{
       self.galleryView.collectionView(self.galleryView.collectionView, didSelectItemAt: IndexPath(row: 0, section: 0))
       self.galleryView.selectedStack.resetAssets([])
-      return
     }
-    delegate?.doneButtonDidPress(self, images: images)
+    delegate?.doneButtonDidPress(self, images: validImages)
   }
-
   func cancelButtonDidPress() {
     delegate?.cancelButtonDidPress(self)
   }
