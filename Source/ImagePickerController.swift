@@ -364,8 +364,9 @@ extension ImagePickerController: BottomContainerViewDelegate {
 //    } else {
       images = AssetManager.resolveAssets(stack.assets)
 //    }
-    if images.count == 1, let result = self.delegate?.isValidSelectedImage(images[0]), result == true {
+    if images.count == 1, let result = self.delegate?.isValidSelectedImage(images[0]), result == false {
       self.galleryView.collectionView(self.galleryView.collectionView, didSelectItemAt: IndexPath(row: 0, section: 0))
+      self.galleryView.selectedStack.resetAssets([])
       return
     }
     delegate?.doneButtonDidPress(self, images: images)
