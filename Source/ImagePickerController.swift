@@ -373,7 +373,11 @@ extension ImagePickerController: BottomContainerViewDelegate {
     }
     self.delegate?.rejectedImages(counter,total:images.count)
     if let enabled = self.delegate?.shouldResetView(), enabled == true{
-      self.galleryView.collectionView(self.galleryView.collectionView, didSelectItemAt: IndexPath(row: 0, section: 0))
+      if let selectedIndexPaths = self.galleryView.collectionView.indexPathsForSelectedItems{
+        for index in selectedIndexPaths{
+           self.galleryView.collectionView(self.galleryView.collectionView, didSelectItemAt: index)
+        }
+      }
       self.galleryView.selectedStack.resetAssets([])
     }
     delegate?.doneButtonDidPress(self, images: validImages)
